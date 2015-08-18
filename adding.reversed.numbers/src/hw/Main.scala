@@ -17,14 +17,26 @@ object Main extends App {
     rev( rev( first ) + rev( second ) )
   }
   
-  def produceOutput( s: Int, ntc: Int ): Unit = {
-    if ( s <= ntc ) {
-      val nums: Array[String] = scala.io.StdIn.readLine().split( " " )
-      println( getReverseSum( nums(0).toInt, nums(1).toInt ) )
-      produceOutput( s+1, ntc )
+  def collectTestCases( ntc: Int ): Array[String] = {
+    val testCases: Array[String] = new Array[String]( ntc )
+    def getNextTestCase( tcr: Int ) {
+      if ( tcr != 0 ) {
+        testCases( ntc - tcr ) = scala.io.StdIn.readLine()
+        getNextTestCase( tcr - 1 )
+      }
+    }
+    getNextTestCase( ntc )
+    return testCases
+  }
+  
+  def produceOutput( testCases: Array[String] ): Unit = {
+    testCases.foreach { x =>  
+      val nums: Array[String] = x.split( " " )
+      println( getReverseSum( nums(0).toInt, nums(1).toInt ) ) 
     }
   }
   
   val ntc: Int = scala.io.StdIn.readInt()
-  produceOutput( 0, ntc )
+  val testCases: Array[String] = collectTestCases( ntc )
+  produceOutput( testCases )
 }
