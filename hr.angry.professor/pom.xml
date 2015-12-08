@@ -1,0 +1,9 @@
+
+
+<project>
+   <modelVersion>4.0.0</modelVersion>
+   <name>AngryProfessor</name>
+   <groupId>hackerrank</groupId>
+   <artifactId>angry.professor</artifactId>
+   <version>1.0.0</version>
+</project>
