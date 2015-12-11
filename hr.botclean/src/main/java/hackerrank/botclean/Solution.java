@@ -6,20 +6,20 @@ import java.util.ArrayList;
 
 class GridLocation {
    
-   private int x;
-   private int y;
+   private int row;
+   private int col;
 
-   public GridLocation( int x, int y ) {
-      this.x = x;
-      this.y = y;
+   public GridLocation( int row, int col ) {
+      this.row = row;
+      this.col = col;
    }
 
-   public int getX() {
-      return this.x;
+   public int getRow() {
+      return this.row;
    }
 
-   public int getY() {
-      return this.y;
+   public int getCol() {
+      return this.col;
    }
 }
 
@@ -47,6 +47,12 @@ class Bot extends GridEntity {
    // CLosest dirty cell
    private GridEntity cdc;
 
+   private void printMoves( String text, int times ) {
+      for ( int i=0; i<times; i++ ) {
+         System.out.println( text );
+      }
+   }
+
    public Bot( Character c, GridLocation loc ) {
       super( c, loc );
    }
@@ -59,36 +65,59 @@ class Bot extends GridEntity {
       return this.cdc;
    }
 
+   public void moveTo( GridLocation cellLoc ) {
+
+      int colDist = cellLoc.getCol() - this.getLocation().getCol();
+      int rowDist = cellLoc.getRow() - this.getLocation().getRow();
+
+      System.out.println( String.format( 
+         "Moving Row Dist: %d, Col Dist: %d", 
+         rowDist, colDist ) );
+
+      if ( colDist > 0 )
+         printMoves( "RIGHT", colDist );
+      else
+         printMoves( "LEFT", colDist * -1 );
+
+      if ( rowDist > 0 )
+         printMoves( "DOWN", rowDist );
+      else
+         printMoves( "UP", rowDist * -1 );
+
+   }
+
+   public void clean() {
+      System.out.println( "CLEAN" );
+   }
+
    // Evaluates cell to see if it is the closest.
    public boolean isCLosestDirtyCell( GridEntity dc ) {
 
       boolean isCloser = false;
       if ( cdc != null ) {
 
-         int botX = this.getLocation().getX();
-         int botY = this.getLocation().getY();
+         int botRow = this.getLocation().getRow();
+         int botCol = this.getLocation().getCol();
          
-         int inX = dc.getLocation().getX();
-         int inY = dc.getLocation().getY();
+         int inRow = dc.getLocation().getRow();
+         int inCol = dc.getLocation().getCol();
 
-         int cdcX = cdc.getLocation().getX();
-         int cdcY = cdc.getLocation().getY();
+         int cdcRow = cdc.getLocation().getRow();
+         int cdcCol = cdc.getLocation().getCol();
 
-         int sumInX = Math.abs( inX - botX );
-         int sumInY = Math.abs( inY - botY );
-         int totalInSum = sumInX + sumInY;
+         int sumInRow = Math.abs( inRow - botRow );
+         int sumInCol = Math.abs( inCol - botCol );
+         int totalInSum = sumInRow + sumInCol;
 
-         int sumCdcX = Math.abs( cdcX - botX );
-         int sumCdcY = Math.abs( cdcY - botY );
-         int totalCdcSum = sumCdcX + sumCdcY;
+         int sumCdcRow = Math.abs( cdcRow - botRow );
+         int sumCdcCol = Math.abs( cdcCol - botCol );
+         int totalCdcSum = sumCdcRow + sumCdcCol;
 
          if ( totalInSum < totalCdcSum )
             isCloser = true;
 
-      } else {
-         System.out.println( String.format( "Setting initial dirty cell: X: %d, Y: %d", dc.getLocation().getX(), dc.getLocation().getY() ) );
+      } else 
          this.cdc = dc;
-      }
 
       return isCloser;
    }
@@ -105,12 +134,12 @@ class Grid {
       ds = new ArrayList<GridEntity>();
    }
 
-   public void addItem( char item, int r, int c ) {
+   public void addItem( char item, int row, int col ) {
       
-      GridLocation gl = new GridLocation( r, c );
+      GridLocation gl = new GridLocation( row, col );
       GridEntity ge = new GridEntity( item, gl );
       
-      if ( item == 'd' ) 
+      if ( item == 'd' )
          ds.add( ge );
       else if ( item == 'b' ) { 
          ge = new Bot( item, gl );
@@ -153,10 +182,16 @@ public class Solution {
       return pg;
    }
 
-   private static void printMoves( String dir, int times ) {
-      for ( int i=0; i<times; i++ ) {
-         System.out.println( dir );
+   private static GridEntity findClosestDirtyCell( Bot bot, List<GridEntity> dirtyCells ) {
+
+      GridEntity cdc = null;
+      for ( GridEntity dc : dirtyCells ) {
+         if ( bot.isCLosestDirtyCell( dc ) ) {
+            cdc = dc;
+            bot.setClosestDirtyCell( dc );
+         }
       }
+      return cdc;
    }
 
    public static void main( String [] args ) {
@@ -167,44 +202,17 @@ public class Solution {
       Grid grid = getGrid( s );
       s.close();
       
-      List<GridEntity> ds = grid.getDirtyCells();
       Bot bot = grid.getBot();
-     
-      System.out.println( String.format( 
-         "Char: %c, X: %d, Y: %d",  
-         bot.getChar(), 
-         bot.getLocation().getX(), 
-         bot.getLocation().getY() ) 
-      );
+      System.out.println( String.format(
+         "Bot is at Row: %d Col: %d",
+         bot.getLocation().getRow(), bot.getLocation().getCol() ) );
 
-      for ( GridEntity dc : ds ) {
-         System.out.println( String.format( 
-            "Dirty Cell at: X: %d, Y: %d",  
-            dc.getLocation().getX(), 
-            dc.getLocation().getY() ) 
-         );
-
-         if ( bot.isCLosestDirtyCell( dc ) ) {
-            System.out.println( String.format( 
-               "Found new Closest Dirty Cell: X: %d Y: %d", 
-               dc.getLocation().getX(), dc.getLocation().getY() ) );
-            bot.setClosestDirtyCell( dc );
-         }
-
-      }
-
-      /*int yDist = pl[0] - bl[0];
-      int xDist = pl[1] - bl[1];
-
-      if ( xDist > 0 )
-         printMoves( "RIGHT", xDist );
-      else
-         printMoves( "LEFT", xDist * -1 );
-
-      if ( yDist > 0 )
-         printMoves( "DOWN", yDist );
-      else
-         printMoves( "UP", yDist * -1 );*/
+      List<GridEntity> ds = grid.getDirtyCells();
+      GridEntity dc = findClosestDirtyCell( bot, ds );
+      System.out.println( String.format(
+         "Found new Closest Dirty Cell: Row: %d Col: %d",
+         dc.getLocation().getRow(), dc.getLocation().getCol() ) );
+      bot.moveTo( dc.getLocation() );
 
    }
 }
