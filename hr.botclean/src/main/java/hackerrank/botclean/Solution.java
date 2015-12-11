@@ -4,7 +4,7 @@ import java.util.Scanner;
 import java.util.List;
 import java.util.ArrayList;
 
-class GridLocation {
+final class GridLocation {
    
    private int row;
    private int col;
@@ -21,12 +21,24 @@ class GridLocation {
    public int getCol() {
       return this.col;
    }
+
+   @Override
+   public String toString() {
+      StringBuilder sb = new StringBuilder();
+      sb.append( "Row: " );
+      sb.append( this.row );
+      sb.append( " " );
+      sb.append( "Col: " );
+      sb.append( this.col );
+      sb.append( "\n" );
+      return sb.toString();
+   }
 }
 
 class GridEntity {
    
-   private Character c;
-   private GridLocation loc;
+   protected Character c;
+   protected GridLocation loc;
 
    public GridEntity( Character c, GridLocation loc ) {
       this.c = c;
@@ -40,9 +52,51 @@ class GridEntity {
    public GridLocation getLocation() {
       return this.loc;
    }
+
+   @Override
+   public String toString() {
+      StringBuilder sb = new StringBuilder();
+      sb.append( "Char: " );
+      sb.append( c );
+      sb.append( " " );
+      sb.append( loc );
+      return sb.toString();
+   }
+
+   @Override
+   public boolean equals( Object in ) {
+      if ( in == null || ! ( in instanceof GridEntity ) ) {
+         return false;
+      } else {
+         GridEntity ge = ( GridEntity ) in;
+         GridLocation gl = ge.getLocation();
+         GridLocation thisGl = this.getLocation();
+         if ( gl.getRow() == thisGl.getRow() && 
+              gl.getCol() == thisGl.getCol() && 
+              ge.c == this.c ) {
+            return true;
+         } else {
+            return false;
+         }
+      }
+   }
+
+   @Override
+   public int hashCode() {
+
+      int row = this.loc.getRow();
+      int col = this.loc.getCol();
+
+      int hash = 5;
+      hash = 89 * hash + (this.c != null ? this.c.hashCode() : 0);
+      hash = 89 * hash + (int) (this.loc.getRow() ^ (this.loc.getRow() >>> 32));
+      hash = 89 * hash + (int) (this.loc.getCol() ^ (this.loc.getCol() >>> 32));
+      return hash;
+   }
+
 }
 
-class Bot extends GridEntity {
+final class Bot extends GridEntity {
    
    // CLosest dirty cell
    private GridEntity cdc;
@@ -70,10 +124,6 @@ class Bot extends GridEntity {
       int colDist = cellLoc.getCol() - this.getLocation().getCol();
       int rowDist = cellLoc.getRow() - this.getLocation().getRow();
 
-      System.out.println( String.format( 
-         "Moving Row Dist: %d, Col Dist: %d", 
-         rowDist, colDist ) );
-
       if ( colDist > 0 )
          printMoves( "RIGHT", colDist );
       else
@@ -84,14 +134,18 @@ class Bot extends GridEntity {
       else
          printMoves( "UP", rowDist * -1 );
 
+      this.loc = cellLoc;
    }
 
-   public void clean() {
+   public void clean( GridEntity cdc, List<GridEntity> dirtyCells ) {
+      cdc.c = '-';
+      dirtyCells.remove( cdc );
       System.out.println( "CLEAN" );
+      this.cdc = null;
    }
 
    // Evaluates cell to see if it is the closest.
-   public boolean isCLosestDirtyCell( GridEntity dc ) {
+   public boolean isClosestDirtyCell( GridEntity dc ) {
 
       boolean isCloser = false;
       if ( cdc != null ) {
@@ -116,10 +170,18 @@ class Bot extends GridEntity {
          if ( totalInSum < totalCdcSum )
             isCloser = true;
 
-      } else 
+      } else {
          this.cdc = dc;
+         isCloser = true;
+      }
 
       return isCloser;
+   }
+
+   public void printLocation() {
+      System.out.println( String.format(
+         "Bot is at Row: %d Col: %d",
+         this.loc.getRow(), this.loc.getCol() ) );
    }
 }
 
@@ -156,6 +218,18 @@ class Grid {
    public Bot getBot() {
       return b;
    }
+
+   public void printGrid() {
+      
+      for ( GridEntity g : this.grid ) {
+         GridLocation gl = g.getLocation();
+         if ( gl.getCol() == 0 )
+            System.out.println();
+         System.out.print( g.getChar() );
+      }
+
+      System.out.println();
+   }
 }
 
 public class Solution {
@@ -186,7 +260,7 @@ public class Solution {
 
       GridEntity cdc = null;
       for ( GridEntity dc : dirtyCells ) {
-         if ( bot.isCLosestDirtyCell( dc ) ) {
+         if ( bot.isClosestDirtyCell( dc ) ) {
             cdc = dc;
             bot.setClosestDirtyCell( dc );
          }
@@ -203,16 +277,11 @@ public class Solution {
       s.close();
       
       Bot bot = grid.getBot();
-      System.out.println( String.format(
-         "Bot is at Row: %d Col: %d",
-         bot.getLocation().getRow(), bot.getLocation().getCol() ) );
-
       List<GridEntity> ds = grid.getDirtyCells();
-      GridEntity dc = findClosestDirtyCell( bot, ds );
-      System.out.println( String.format(
-         "Found new Closest Dirty Cell: Row: %d Col: %d",
-         dc.getLocation().getRow(), dc.getLocation().getCol() ) );
-      bot.moveTo( dc.getLocation() );
-
+      while ( ds.size() > 0 ) {
+         GridEntity dc = findClosestDirtyCell( bot, ds );
+         bot.moveTo( dc.getLocation() );
+         bot.clean( dc, ds );
+      }
    }
 }
