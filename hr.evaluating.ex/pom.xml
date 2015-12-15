@@ -1,9 +1,0 @@
-
-
-<project>
-   <modelVersion>4.0.0</modelVersion>
-   <name>Evaluating e^x</name>
-   <groupId>hr</groupId>
-   <artifactId>eval.ex</artifactId>
-   <version>1.0.0</version>
-</project>
