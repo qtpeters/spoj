@@ -25,9 +25,9 @@ object Solution extends App {
    /*
     * Return the factorial of num
     */
-	def f( num:Int ) : Double = {
+	def fact( num:Int ) : Double = {
 		if ( num > 0 ) 
-			return num * f( num - 1 ) 
+			return num * fact( num - 1 ) 
 		else 1
 	}
 
@@ -36,7 +36,7 @@ object Solution extends App {
     */
 	def evalFor( value:Double, itr:Int=0 ) : Double = {
 		if ( itr < 10 )
-			p( value, itr )/f( itr ) + evalFor( value, itr + 1 )
+			p( value, itr )/fact( itr ) + evalFor( value, itr + 1 )
 		else 0.0
 	} 
 	
