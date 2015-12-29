@@ -11,8 +11,8 @@ object Solution extends App {
 	}
 
 	def p( value:Double, pow:Int ) : Double = {
-		if ( pow > 1 )
-			return value * p( value, pow - 1 )
+		if ( pow > 1 ) value * p( value, pow - 1 )
+		else if ( pow == 0 ) 1
 		else value
 	}
 
@@ -31,7 +31,7 @@ object Solution extends App {
 	def exeTestCase( tn:Int ) : Unit = {
 		if ( tn > 0 ) {
 			exeTestCase( tn - 1 );
-			println( evalFor( scala.io.StdIn.readDouble() ) )
+			println( r( evalFor( scala.io.StdIn.readDouble() ) ) )
 		}
 	}
 	
