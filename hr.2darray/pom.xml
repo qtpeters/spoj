@@ -1,0 +1,9 @@
+
+
+<project>
+   <modelVersion>4.0.0</modelVersion>
+   <name>2D Array</name>
+   <groupId>hackerrank</groupId>
+   <artifactId>d2array</artifactId>
+   <version>1.0.0</version>
+</project>
