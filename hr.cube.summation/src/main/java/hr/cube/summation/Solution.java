@@ -4,13 +4,15 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 
 import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
 import java.util.Arrays;
+import java.util.Objects;
 
 class R3Point {
    private int x;
    private int y;
    private int z;
-   private long value;
 
    public R3Point( int x, int y, int z ) {
       this.x = x;
@@ -18,12 +20,29 @@ class R3Point {
       this.z = z;
    }
 
-   public void setValue( long value ) {
-      this.value = value;
+   @Override
+   public boolean equals( Object other ) {
+      if ( other == null || ! ( other instanceof R3Point ) )
+         return false;
+      else {
+         R3Point otherPoint = ( R3Point )other;
+         if ( otherPoint.x == this.x &&
+              otherPoint.y == this.y &&
+              otherPoint.z == this.z ) 
+            return true;
+         else 
+            return false;
+      }
    }
 
-   public long getValue() {
-      return this.value;
+   @Override
+   public int hashCode() {
+      return Objects.hash( this.x, this.y, this.z );
+   }
+
+   @Override
+   public String toString() {
+      return String.format( "< x: %d, y: %d, z: %d > ", this.x, this.y, this.z );
    }
 }
 
@@ -31,16 +50,25 @@ class CubeData {
 
    private int matrixSize;
    private int numCommands;
-   private List<R3Point> updates;
+   private Map<R3Point, Long> updates;
 
    private void processUpdate( List<String> updateList ) {
-      System.out.println( "Processing UPDATE" );
-      System.out.println( updateList );
+      int x = Integer.valueOf( updateList.get( 0 ) );
+      int y = Integer.valueOf( updateList.get( 1 ) );
+      int z = Integer.valueOf( updateList.get( 2 ) );
+      Long value = Long.valueOf( updateList.get( 3 ) );
+      R3Point point = new R3Point( x, y, z );
+      updates.put( point, value );
    }
 
    private void processQuery( List<String> queryList ) {
       System.out.println( "Processing QUERY" );
       System.out.println( queryList );
+      System.out.println( updates );
+   }
+
+   public CubeData() {
+      this.updates = new HashMap<R3Point, Long>();
    }
 
    public void process( String input ) {
