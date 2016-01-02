@@ -20,6 +20,18 @@ class R3Point {
       this.z = z;
    }
 
+   public int getX() {
+      return this.x;
+   }
+
+   public int getY() {
+      return this.y;
+   }
+
+   public int getZ() {
+      return this.z;
+   }
+
    @Override
    public boolean equals( Object other ) {
       if ( other == null || ! ( other instanceof R3Point ) )
@@ -74,22 +86,22 @@ class CubeData {
 
       long sum = 0l;
 
-      int x = Integer.valueOf( updateList.get( 0 ) );
-      int y = Integer.valueOf( updateList.get( 1 ) );
-      int z = Integer.valueOf( updateList.get( 2 ) );
+      int x = Integer.valueOf( queryList.get( 0 ) );
+      int y = Integer.valueOf( queryList.get( 1 ) );
+      int z = Integer.valueOf( queryList.get( 2 ) );
 
-      int x1 = Integer.valueOf( updateList.get( 3 ) );
-      int y1 = Integer.valueOf( updateList.get( 4 ) );
-      int z1 = Integer.valueOf( updateList.get( 5 ) );
+      int x1 = Integer.valueOf( queryList.get( 3 ) );
+      int y1 = Integer.valueOf( queryList.get( 4 ) );
+      int z1 = Integer.valueOf( queryList.get( 5 ) );
 
       int a = x - x1;
       int b = y - y1;
       int c = z - z1;
 
-      for ( R3Point point : updates.keySet() {
-         t1 = ( point.getX() - x )/( a * -1 );
-         t2 = ( point.getY() - y )/( b * -1 );
-         t3 = ( point.getZ() - z )/( c * -1 );
+      for ( R3Point point : updates.keySet() ) {
+         int t1 = ( point.getX() - x )/( a * -1 );
+         int t2 = ( point.getY() - y )/( b * -1 );
+         int t3 = ( point.getZ() - z )/( c * -1 );
 
          if ( t1 == t2 && t1 == t3 )
             sum += updates.get( point );
