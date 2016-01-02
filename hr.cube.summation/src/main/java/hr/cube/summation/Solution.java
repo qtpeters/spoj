@@ -62,9 +62,40 @@ class CubeData {
    }
 
    private void processQuery( List<String> queryList ) {
-      System.out.println( "Processing QUERY" );
-      System.out.println( queryList );
-      System.out.println( updates );
+
+      /* TODO - It all happens right here!!
+       * - What happens if x == x1?
+       *   Divide by zero! 
+       * - What does it mean if values are equal in the point? 
+       *   E.G. 2 3 4 : 4 3 2
+       * - I'm not sure about the math. It needs to be verified.
+       * - Output must be correct, right now I didn't even read what it's supposed to be.
+       */
+
+      long sum = 0l;
+
+      int x = Integer.valueOf( updateList.get( 0 ) );
+      int y = Integer.valueOf( updateList.get( 1 ) );
+      int z = Integer.valueOf( updateList.get( 2 ) );
+
+      int x1 = Integer.valueOf( updateList.get( 3 ) );
+      int y1 = Integer.valueOf( updateList.get( 4 ) );
+      int z1 = Integer.valueOf( updateList.get( 5 ) );
+
+      int a = x - x1;
+      int b = y - y1;
+      int c = z - z1;
+
+      for ( R3Point point : updates.keySet() {
+         t1 = ( point.getX() - x )/( a * -1 );
+         t2 = ( point.getY() - y )/( b * -1 );
+         t3 = ( point.getZ() - z )/( c * -1 );
+
+         if ( t1 == t2 && t1 == t3 )
+            sum += updates.get( point );
+
+         System.out.println( "Sum: " + sum );
+      }
    }
 
    public CubeData() {
