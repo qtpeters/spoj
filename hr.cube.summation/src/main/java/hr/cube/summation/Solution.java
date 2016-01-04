@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 
 import java.util.List;
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.Arrays;
@@ -54,7 +55,7 @@ class R3Point {
 
    @Override
    public String toString() {
-      return String.format( "< x: %d, y: %d, z: %d > ", this.x, this.y, this.z );
+      return String.format( "(x: %d, y: %d, z: %d )", this.x, this.y, this.z );
    }
 }
 
@@ -76,7 +77,7 @@ class CubeData {
    private void processQuery( List<String> queryList ) {
 
       /* TODO - It all happens right here!!
-       * - What happens if x == x1?
+       * - What happens if x0 == x1?
        *   Divide by zero! 
        * - What does it mean if values are equal in the point? 
        *   E.G. 2 3 4 : 4 3 2
@@ -86,28 +87,70 @@ class CubeData {
 
       long sum = 0l;
 
-      int x = Integer.valueOf( queryList.get( 0 ) );
-      int y = Integer.valueOf( queryList.get( 1 ) );
-      int z = Integer.valueOf( queryList.get( 2 ) );
+      int x0 = Integer.valueOf( queryList.get( 0 ) );
+      int y0 = Integer.valueOf( queryList.get( 1 ) );
+      int z0 = Integer.valueOf( queryList.get( 2 ) );
 
       int x1 = Integer.valueOf( queryList.get( 3 ) );
       int y1 = Integer.valueOf( queryList.get( 4 ) );
       int z1 = Integer.valueOf( queryList.get( 5 ) );
 
-      int a = x - x1;
-      int b = y - y1;
-      int c = z - z1;
+      int a = x1 - x0;
+      int b = y1 - y0;
+      int c = z1 - z0;
 
+      //System.out.println( String.format( "\nQuery Points: (%d,%d,%d) - (%d,%d,%d)", x0, y0, z0, x1, y1, z1 ) );
+      //System.out.println( String.format( "Vector: <%d,%d,%d>", a, b, c ) );
       for ( R3Point point : updates.keySet() ) {
-         int t1 = ( point.getX() - x )/( a * -1 );
-         int t2 = ( point.getY() - y )/( b * -1 );
-         int t3 = ( point.getZ() - z )/( c * -1 );
 
-         if ( t1 == t2 && t1 == t3 )
+         boolean onTheLine = true;
+         int x = point.getX();
+         int y = point.getY();
+         int z = point.getZ();
+
+         if ( ( x == x0 && y == y0 && z == z0 ) || ( x == x1 && y == y1 && z == z1 ) ) {
+            onTheLine = true;
+         } else if ( a == 0 && b == 0 && c == 0 ) {
+            onTheLine = false;
+         } else {
+
+            List<Double> tList = new ArrayList<Double>();
+
+            if ( a != 0 ) {
+               tList.add( (double)( x - x0 )/ (double) a );
+            }
+
+            if ( b != 0 ) {
+               tList.add( (double)( y - y0 )/ (double) b );
+            }
+            
+            if ( c != 0 ) {
+               tList.add( (double)( z - z0 )/ (double) c );
+            }
+
+            Double last = null;
+            for ( Double t : tList ) {
+               if ( last == null ) {
+                  last = t;
+               } else {
+                  if ( ! t.equals( last ) || t < 0 || t > 1 ) {
+                     //System.out.println( String.format( "\t\tt: %f != last: %f", t, last ) );
+                     onTheLine = false;
+                     break;
+                  }
+               }
+            }
+         }
+
+         if ( onTheLine ) {
+            //System.out.println( String.format( "\tOn The Line: %s", point.toString()) );
             sum += updates.get( point );
-
-         System.out.println( "Sum: " + sum );
+         } /*else {
+            System.out.println( String.format( "\tNot On The Line: %s", point.toString() ) );
+         }*/
       }
+
+      System.out.println( sum );
    }
 
    public CubeData() {
@@ -145,9 +188,8 @@ public class Solution {
             int numCommands = Integer.valueOf( initData[1] );
             
             CubeData cd = new CubeData();
-            for ( int j=0; j<numCommands; j++ ) {
+            for ( int j=0; j<numCommands; j++ )
                cd.process( reader.readLine() );
-            }
          }
 
          reader.close();
